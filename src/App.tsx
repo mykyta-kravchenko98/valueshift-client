@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-import CoinDashboard from './CoinDashboard';
+import MainLayout from './MainLayout';
 
 const theme = createTheme({
   palette: {
@@ -16,9 +14,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <div style={{ width: '100%' }}>
-        <CoinDashboard/>
-      </div>
+      <MainLayout/>
     </ThemeProvider>
   );
 }

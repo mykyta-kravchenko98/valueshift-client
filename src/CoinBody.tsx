@@ -1,46 +1,35 @@
 import React, { useEffect, useState } from 'react';
-import CoinDashboard, {Coin} from './CoinDashboard';
 import {
     TableBody,
-  TableCell,
-  TableRow,
 } from '@mui/material';
 import BodyRow from './BodyRow';
+import { useCoinDataAPIWebSocket } from './hooks-helpers';
+import BodySkeleton from './BodySkeleton';
 
-interface CryptoCoinResponse {
-	coins: Coin[];
-}
+interface CoinTableBodyProps {
+    rowsPerPage: number;
+    page: number;
+    setDataLength: (length: number) => void;
+  }
 
-export default function CoinTableBody() {
-    const [coins, setCoins] = useState<Coin[]>([]);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [page, setPage] = useState(0);
-    const [dataLength, setDataLength] = useState(0);
+export const CoinTableBody: React.FC<CoinTableBodyProps> = ({ rowsPerPage, page, setDataLength }) => {
+    const { data, isLoading } = useCoinDataAPIWebSocket();
+    const dataSliced = data.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
     useEffect(() => {
-        const socket = new WebSocket("ws://127.0.0.1:9070/websocket");
-        
-        socket.onopen = () => {
-            console.log('connected')
-        }
-
-        socket.onmessage = (e) => {
-            console.log('Received data');
-            const data = JSON.parse(e.data) as CryptoCoinResponse;
-            setCoins(data.coins);
-        }
-
-        return () => {
-            console.log('close');
-            socket.close()
-        }
-      }, []);    
+        setDataLength(data.length);
+      }, [data.length, setDataLength]);
 
       return (
         <TableBody>
-            {coins.map((coin) => (
+            {isLoading ? (
+            <BodySkeleton rows={rowsPerPage} heads={7} />
+            ) : (
+                dataSliced.map((coin) => (
                 <BodyRow coin={coin}/>
-            ))}
+            )
+            ))
+            }
         </TableBody>
       );
   }
